@@ -348,33 +348,34 @@ port-fec
             )
     if ip_with_prefix is not None:
         ip, nw_addr, prefix_len = validate_and_get_ip_prefix(ip_with_prefix)
-        ip_payload = {
-            "openconfig-interfaces:subinterface": [
-                {
-                    "config": {"index": index},
-                    "index": index,
-                    "openconfig-if-ip:ipv4": {
-                        "addresses": {
-                            "address": [
-                                {
-                                    "ip": ip,
-                                    "config": {
-                                        "prefix-length": prefix_len,
-                                        "secondary": False,
-                                    },
-                                }
-                            ]
-                        }
-                    },
-                }
-            ]
-        }
-        updates.append(
-            create_gnmi_update(
-                get_sub_interface_path(if_name),
-                ip_payload,
+        if ip is not None:
+            ip_payload = {
+                "openconfig-interfaces:subinterface": [
+                    {
+                        "config": {"index": index},
+                        "index": index,
+                        "openconfig-if-ip:ipv4": {
+                            "addresses": {
+                                "address": [
+                                    {
+                                        "ip": ip,
+                                        "config": {
+                                            "prefix-length": prefix_len,
+                                            "secondary": False,
+                                        },
+                                    }
+                                ]
+                            }
+                        },
+                    }
+                ]
+            }
+            updates.append(
+                create_gnmi_update(
+                    get_sub_interface_path(if_name),
+                    ip_payload,
+                )
             )
-        )
     if if_mode and vlan_id:
         updates.append(get_if_vlan_gnmi_update_req(vlan_id, if_name, if_mode))
     if autoneg is not None:
