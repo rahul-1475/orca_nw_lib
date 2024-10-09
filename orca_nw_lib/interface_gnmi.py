@@ -346,8 +346,8 @@ port-fec
                     {"port-speed": speed.get_oc_val()},
                 )
             )
-    ip, nw_addr, prefix_len = validate_and_get_ip_prefix(ip_with_prefix)
-    if ip is not None:
+    if ip_with_prefix is not None:
+        ip, nw_addr, prefix_len = validate_and_get_ip_prefix(ip_with_prefix)
         ip_payload = {
             "openconfig-interfaces:subinterface": [
                 {
