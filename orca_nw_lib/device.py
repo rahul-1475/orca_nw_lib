@@ -6,8 +6,8 @@ from orca_nw_lib.device_gnmi import (get_device_details_from_device,
                                      get_device_status_from_device)
 from orca_nw_lib.graph_db_models import Device
 from orca_nw_lib.utils import get_logging, get_telemetry_db
-
 from orca_nw_lib.device_gnmi import get_image_list_from_device
+from orca_nw_lib.interface_gnmi import get_intf_ip_address_list
 
 _logger=logger = get_logging().getLogger(__name__)
 
@@ -38,10 +38,18 @@ def _create_device_graph_object(ip_addr: str) -> Device | None:
         if state.get("resource") == "system_status":
             system_status = state.get("text")
             break
+    mgt_intf = device_detail.get("mgt_intf")
+    if mgt_intf != "Management0":
+        mgt_intf_ips = get_intf_ip_address_list(device_ip=ip_addr)
+        if mgt_intf_ips:
+            for intf_ip in mgt_intf_ips:
+                if intf_ip.get("ipPrefix") == ip_addr:
+                    mgt_intf = intf_ip.get("ifName")
+                    break
     return Device(
         img_name=device_detail.get("img_name"),
-        mgt_intf=device_detail.get("mgt_intf"),
-        mgt_ip=mgt_ip.split("/")[0].strip() if (mgt_ip:=device_detail.get("mgt_ip")) else None,
+        mgt_intf=mgt_intf,
+        mgt_ip=ip_addr,
         hwsku=device_detail.get("hwsku"),
         mac=device_detail.get("mac"),
         platform=device_detail.get("platform"),
@@ -72,6 +80,8 @@ def get_device_details(mgt_ip: Optional[str] = None) -> Union[dict, List[dict]]:
         each containing the properties of a device. If no device is found,
         an empty list is returned.
     """
+    intf_ip_list = get_intf_ip_address_list(device_ip=mgt_ip)
+    print(intf_ip_list)
     if mgt_ip:
         device = get_device_db_obj(mgt_ip)
         if device:
