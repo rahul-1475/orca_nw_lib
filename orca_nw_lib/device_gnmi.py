@@ -161,3 +161,7 @@ def get_image_list_from_device(device_ip: str):
         path=[path],
         device_ip=device_ip,
     )
+
+def get_intf_ip_address_list(device_ip: str):
+    path = get_gnmi_path("sonic-interface:sonic-interface/INTF_TABLE/INTF_TABLE_IPADDR_LIST")
+    return send_gnmi_get(path=[path], device_ip=device_ip)
