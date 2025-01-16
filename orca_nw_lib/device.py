@@ -39,14 +39,17 @@ def _create_device_graph_object(ip_addr: str) -> Device | None:
         if state.get("resource") == "system_status":
             system_status = state.get("text")
             break
+    
     mgt_intf = device_detail.get("mgt_intf")
-    if mgt_intf != "Management0":
+
+    if ip_addr not in device_detail.get("mgt_ip"):
+        device_detail["mgt_ip"] = ip_addr
         mgt_intf_ips = get_intf_ip_address_list(device_ip=ip_addr)
-        if mgt_intf_ips:
-            for intf_ip in mgt_intf_ips:
-                if intf_ip.get("ipPrefix") == ip_addr:
-                    mgt_intf = intf_ip.get("ifName")
-                    break
+        for intf_ip in mgt_intf_ips or []:
+            if intf_ip.get("ipPrefix") == ip_addr:
+                mgt_intf = intf_ip.get("ifName")
+                break
+            
     return Device(
         img_name=device_detail.get("img_name"),
         mgt_intf=mgt_intf,
