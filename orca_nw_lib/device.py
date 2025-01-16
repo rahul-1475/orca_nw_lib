@@ -3,7 +3,8 @@ from orca_nw_lib.device_db import get_device_db_obj, insert_devices_in_db
 from orca_nw_lib.device_info_influxdb import insert_device_info_in_influxdb
 from orca_nw_lib.device_info_promdb import insert_device_info_in_prometheus
 from orca_nw_lib.device_gnmi import (get_device_details_from_device,
-                                     get_device_status_from_device)
+                                     get_device_status_from_device, 
+                                     get_intf_ip_address_list)
 from orca_nw_lib.graph_db_models import Device
 from orca_nw_lib.utils import get_logging, get_telemetry_db
 
@@ -38,10 +39,18 @@ def _create_device_graph_object(ip_addr: str) -> Device | None:
         if state.get("resource") == "system_status":
             system_status = state.get("text")
             break
+    mgt_intf = device_detail.get("mgt_intf")
+    if mgt_intf != "Management0":
+        mgt_intf_ips = get_intf_ip_address_list(device_ip=ip_addr)
+        if mgt_intf_ips:
+            for intf_ip in mgt_intf_ips:
+                if intf_ip.get("ipPrefix") == ip_addr:
+                    mgt_intf = intf_ip.get("ifName")
+                    break
     return Device(
         img_name=device_detail.get("img_name"),
-        mgt_intf=device_detail.get("mgt_intf"),
-        mgt_ip=mgt_ip.split("/")[0].strip() if (mgt_ip:=device_detail.get("mgt_ip")) else None,
+        mgt_intf=m,
+        mgt_ip=ip_addr,
         hwsku=device_detail.get("hwsku"),
         mac=device_detail.get("mac"),
         platform=device_detail.get("platform"),
