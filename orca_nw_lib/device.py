@@ -49,7 +49,7 @@ def _create_device_graph_object(ip_addr: str) -> Device | None:
                     break
     return Device(
         img_name=device_detail.get("img_name"),
-        mgt_intf=m,
+        mgt_intf=mgt_intf,
         mgt_ip=ip_addr,
         hwsku=device_detail.get("hwsku"),
         mac=device_detail.get("mac"),
