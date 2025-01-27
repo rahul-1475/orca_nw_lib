@@ -1,6 +1,7 @@
 import ipaddress
 import time
 
+from orca_nw_lib.evpn import discover_evpn
 from orca_nw_lib.lldp_db import create_lldp_relations_in_db
 from orca_nw_lib.system import discover_system
 from .common import DiscoveryFeature
@@ -277,6 +278,12 @@ def discover_nw_features(device_ip: str, feature: DiscoveryFeature) -> None:
             except Exception as e:
                 _logger.info(f"System Discovery Failed on device {device_ip}, Reason: {e}")
                 return f"System Discovery Failed on device {device_ip}, Reason: {e}"
+        case DiscoveryFeature.evpn:
+            try:
+                discover_evpn(device_ip)
+            except Exception as e:
+                _logger.info(f"EVPN Discovery Failed on device {device_ip}, Reason: {e}")
+                return f"EVPN Discovery Failed on device {device_ip}, Reason: {e}"
         case _:
             _logger.error("Invalid feature specified")
             return "Invalid feature specified"
