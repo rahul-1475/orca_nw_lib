@@ -6,14 +6,18 @@ import json
  
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
+from orca_nw_lib.utils import get_logging
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
  
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
  
+_logger = get_logging().getLogger(__name__)
+
+
 username = "admin"
 password = "YourPaSsWoRd"
-device_ip_list = ["10.10.229.171", "10.10.229.51", "10.10.229.52"]
  
 auth_string = base64.b64encode(f"{username}:{password}".encode()).decode()
 headers = {
@@ -50,19 +54,19 @@ def send_req(req: HttpRequest, resource_url, req_body=None, timeout_sec=5):
             timeout=timeout_sec,
         )
     except requests.exceptions.Timeout as e:
-        print(e)
+        _logger.error(e)
     except requests.exceptions.RequestException as e:
-        print(e)
+         _logger.error(e)
     # parse resource_url and print only the IP
     ip = resource_url.split("/")[2]
-    # print(f"{req} Request sent to {ip}")
+    # _logger.debug(f"{req} Request sent to {ip}")
     if response != None:
-        # print(f"{req} Response Status Code: {response.status_code}:{response.reason}")
-        (
-            # print(json.dumps(response.json(), indent=4))
-            # if response.text
-            # else print("no output")
-        )
+        # _logger.debug(f"{req} Response Status Code: {response.status_code}:{response.reason}")
+        if response.text:
+            # _logger.debug(json.dumps(response.json(), indent=4))
+            pass
+        else:
+            _logger.info("no output")
     return response
  
  
