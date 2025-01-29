@@ -53,6 +53,7 @@ def compile_openconfig_yang():
     ## Compile yang
     for item in os.listdir(openconfig_dir):
         file_nname_no_ext=os.path.splitext(os.path.basename(item))[0]
+        ## pyangbind should be explicitely installed in venv, it is not part of pyproject.toml
         if item.endswith('.yang'):
             cmd=f'pyang --plugindir ./.venv/lib/python3.10/site-packages/pyangbind/plugin -f pybind -p {openconfig_dir} -o {openconfig_dir}/{file_nname_no_ext}.py {openconfig_dir}/{item}'
             try:
